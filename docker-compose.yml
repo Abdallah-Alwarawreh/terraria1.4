@@ -13,8 +13,14 @@ services:
     environment:
       - TERRARIA_USECONFIGFILE=Yes
       - TERRARIA_PASS=${TERRARIA_PASS:-sigma67}
-      - TERRARIA_SHUTDOWN_MESSAGE=Server shutting down!
+      - TERRARIA_SHUTDOWN_MESSAGE=Server shutting down sigmas!
       - TERRARIA_AUTOSAVE_INTERVAL=15
-
+  playit:
+    image: ghcr.io/playit-cloud/playit-agent:0.16
+    restart: always
+    container_name: playit-tunnel
+    network_mode: service:terraria
+    environment:
+    - SECRET_KEY=${PLAYIT_SECRET_KEY}
 volumes:
   terraria_data:
