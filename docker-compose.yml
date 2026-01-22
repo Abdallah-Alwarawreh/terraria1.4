@@ -8,11 +8,17 @@ services:
     ports:
       - '7777:7777'
     volumes:
-      - 'terraria_data:/root/.local/share/Terraria/Worlds'
-      - './config.txt:/home/terraria/server/config.txt'
+      - 'terraria_data:/home/terraria/.local/share/Terraria/Worlds'
     environment:
-      - TERRARIA_USECONFIGFILE=Yes
+      - TERRARIA_USECONFIGFILE=No
+      - TERRARIA_WORLDNAME=DaniServer
+      - TERRARIA_WORLDSIZE=3
+      - TERRARIA_WORLDSEED=sigma
+      - TERRARIA_DIFFICULTY=2
+      - TERRARIA_WORLDEVIL=2
+      - TERRARIA_MAXPLAYERS=8
       - TERRARIA_PASS=${TERRARIA_PASS:-sigma67}
+      - TERRARIA_MOTD=This is so sigma!
       - TERRARIA_SHUTDOWN_MESSAGE=Server shutting down sigmas!
       - TERRARIA_AUTOSAVE_INTERVAL=15
   playit:

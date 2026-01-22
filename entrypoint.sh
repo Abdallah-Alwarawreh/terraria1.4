@@ -31,6 +31,17 @@ else
       DIFFICULTY="Master"
   esac
   echo -e "World Difficulty Set to: $DIFFICULTY"
+  case "$TERRARIA_WORLDEVIL" in
+    1)
+      WORLDEVIL="Corruption"
+      ;;
+    2)
+      WORLDEVIL="Crimson"
+      ;;
+    *)
+      WORLDEVIL="Random"
+  esac
+  echo -e "World Evil Set to: $WORLDEVIL"
   echo -e "Max Players set to: $TERRARIA_MAXPLAYERS"
   echo -e "Server Password set to: $TERRARIA_PASS"
   echo -e "MOTD Set to: $TERRARIA_MOTD"
@@ -73,8 +84,12 @@ else
     else
       server="$server -seed \"$TERRARIA_WORLDSEED\""
     fi
-    
-    server="$server -config /home/terraria/server/config.txt"
+
+    server="$server -difficulty $TERRARIA_DIFFICULTY"
+
+    if [[ -n "$TERRARIA_WORLDEVIL" && "$TERRARIA_WORLDEVIL" != "0" ]]; then
+      server="$server -evil $TERRARIA_WORLDEVIL"
+    fi
   fi
 
   server="$server -players $TERRARIA_MAXPLAYERS"
