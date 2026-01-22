@@ -9,7 +9,7 @@ services:
       - '7777:7777'
     volumes:
       - 'terraria_data:/root/.local/share/Terraria/Worlds'
-      - './config.txt:/root/terraria-server/config.txt'
+      - './config.txt:/home/terraria/server/config.txt'
     environment:
       - TERRARIA_USECONFIGFILE=Yes
       - TERRARIA_PASS=${TERRARIA_PASS:-sigma67}
