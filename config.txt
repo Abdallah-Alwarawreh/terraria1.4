@@ -1,0 +1,23 @@
+world=/root/.local/share/Terraria/Worlds/DaniServer.wld
+worldname=DaniServer
+worldsize=3
+seed=sigma
+autocreate=3
+
+players=8
+port=7777
+password=
+motd=This is so sigma!
+
+difficulty=2
+
+worldevil=2
+
+maxspawns=5
+spawnrate=600
+banlist=banlist.txt
+secure=1
+upnp=0
+npcstream=60
+language=en-US
+priority=1

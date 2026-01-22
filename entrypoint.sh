@@ -3,7 +3,7 @@ pipe=/tmp/terraria.pipe
 
 # Check Config
 if [[ "$TERRARIA_USECONFIGFILE" == "Yes" ]]; then
-  if [ -e /root/terraria-server/serverconfig.txt ]; then
+  if [ -e /home/terraria/server/config.txt ]; then
     echo -e "Terraria server will launch with the supplied config file."
   else
     echo -e "[!!] ERROR: The Terraria server was set to launch with a config file, but it was not found. Please map the file and launch the server again."
@@ -17,6 +17,20 @@ else
   echo -e "World Name set to: $TERRARIA_WORLDNAME"
   echo -e "World Size set to: $TERRARIA_WORLDSIZE"
   echo -e "World Seed set to: $TERRARIA_WORLDSEED"
+  case "$TERRARIA_DIFFICULTY" in
+    0)
+      DIFFICULTY="Classic"
+      ;;
+    1)
+      DIFFICULTY="Expert"
+      ;;
+    3)
+      DIFFICULTY="Journey"
+      ;;
+    *)
+      DIFFICULTY="Master"
+  esac
+  echo -e "World Difficulty Set to: $DIFFICULTY"
   echo -e "Max Players set to: $TERRARIA_MAXPLAYERS"
   echo -e "Server Password set to: $TERRARIA_PASS"
   echo -e "MOTD Set to: $TERRARIA_MOTD"
@@ -36,23 +50,31 @@ function shutdown () {
 }
 
 # Base startup command
-TERRARIA_PATH=$(ls -d /root/terraria-server/*|head -n 1)
-server="$TERRARIA_PATH/Linux/TerrariaServer.bin.x86_64 -server"
+TERRARIA_PATH=$(ls -d /home/terraria/server | head -n 1)
+server="$TERRARIA_PATH/TerrariaServer.bin.x86_64 -server"
 
 # If config, we supply it at the command line.
 if [[ "$TERRARIA_USECONFIGFILE" == "Yes" ]]; then
-  server="$server -config /root/terraria-server/config.txt"
+  server="$server -config /home/terraria/server/config.txt"
 
 else
   # Check if the world file exists.
-  if [ -e "/root/.local/share/Terraria/Worlds/$TERRARIA_WORLDNAME.wld" ]; then
-    server="$server -world \"/root/.local/share/Terraria/Worlds/$TERRARIA_WORLDNAME.wld\""
+  if [ -e "/home/terraria/.local/share/Terraria/Worlds/$TERRARIA_WORLDNAME.wld" ]; then
+    server="$server -world \"/home/terraria/.local/share/Terraria/Worlds/$TERRARIA_WORLDNAME.wld\""
   else
   # If it does not, alert the player, and set the startup parameters to automatically generate the world.
     echo -e "[!!] WARNING: The world \"$TERRARIA_WORLDNAME\" was not found. The server will automatically create a new world."
     sleep 3s
-    server="$server -world \"/root/.local/share/Terraria/Worlds/$TERRARIA_WORLDNAME.wld\""
-    server="$server -autocreate $TERRARIA_WORLDSIZE -worldname \"$TERRARIA_WORLDNAME\" -seed \"$TERRARIA_WORLDSEED\""
+    server="$server -world \"/home/terraria/.local/share/Terraria/Worlds/$TERRARIA_WORLDNAME.wld\""
+    server="$server -autocreate $TERRARIA_WORLDSIZE -worldname \"$TERRARIA_WORLDNAME\""
+
+    if [[ "$TERRARIA_WORLDSEED" == "Random" ]]; then
+      echo -e "[!!] World will generate using random seed."
+    else
+      server="$server -seed \"$TERRARIA_WORLDSEED\""
+    fi
+    
+    server="$server -config /home/terraria/server/config.txt"
   fi
 
   server="$server -players $TERRARIA_MAXPLAYERS"
@@ -77,7 +99,7 @@ mkfifo $pipe
 tmux new-session -d "$server | tee $pipe"
 
 # Call the autosaver
-/root/terraria-server/autosave.sh &
+/home/terraria/autosave.sh &
 
 # Infinitely print the contents of the pipe, so the container still logs the Terraria Server.
 cat $pipe &

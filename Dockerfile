@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM debian:bookworm-slim
 
 # The Terraria Game Version, ignoring periods. For example, version 1.4.4.9 will be a value of 1449 in this variable.
 ARG TERRARIA_VERSION=1449
@@ -16,6 +16,7 @@ ENV TERRARIA_MAXPLAYERS="8"
 ENV TERRARIA_WORLDNAME="Docker"
 ENV TERRARIA_WORLDSIZE="3"
 ENV TERRARIA_WORLDSEED="Docker"
+ENV TERRARIA_DIFFICULTY="2"
 
 # Loading a configuration file expects a proper Terraria config file to be mapped to /root/terraria-server/serverconfig.txt
 # Set this to "Yes" if you would rather use a config file instead of the above settings.
@@ -26,18 +27,30 @@ EXPOSE 7777
 RUN apt-get update
 RUN apt-get install -y wget unzip tmux bash
 
-WORKDIR /root/terraria-server
+RUN useradd -m terraria
 	
-RUN wget https://terraria.org/api/download/pc-dedicated-server/terraria-server-${TERRARIA_VERSION}.zip
-RUN unzip -o terraria-server-${TERRARIA_VERSION}.zip 
-RUN rm terraria-server-${TERRARIA_VERSION}.zip
+RUN mkdir -p /home/terraria/server /home/terraria/.local/share/Terraria/Worlds 
+RUN echo "difficulty=${TERRARIA_DIFFICULTY}" > /home/terraria/server/config.txt
+RUN wget -O /home/terraria/terraria-server-${TERRARIA_VERSION}.zip https://terraria.org/api/download/pc-dedicated-server/terraria-server-${TERRARIA_VERSION}.zip
+RUN unzip -o /home/terraria/terraria-server-${TERRARIA_VERSION}.zip -d /home/terraria
+RUN ls -la /home/terraria
+RUN mv /home/terraria/${TERRARIA_VERSION}/Linux/* /home/terraria/server
+RUN rm -rf /home/terraria/terraria-server-${TERRARIA_VERSION}.zip /home/terraria/${TERRARIA_VERSION}
+RUN apt-get remove unzip -y \
+ && apt-get autoremove -y \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /root/.local/share/Terraria/Worlds 
+WORKDIR /home/terraria
 
 COPY entrypoint.sh .
 COPY inject.sh /usr/local/bin/inject
 COPY autosave.sh .
 
-RUN chmod +x entrypoint.sh /usr/local/bin/inject autosave.sh /root/terraria-server/${TERRARIA_VERSION}/Linux/TerrariaServer.bin.x86_64
+RUN chmod +x entrypoint.sh /usr/local/bin/inject autosave.sh server/TerrariaServer.bin.x86_64
+
+RUN chown -R terraria:terraria /home/terraria
+
+USER terraria
 
 ENTRYPOINT ["./entrypoint.sh"]

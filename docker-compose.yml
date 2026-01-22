@@ -1,26 +1,20 @@
-version: '3'
 services:
   terraria:
-    image: 'jacobsmile/terraria1.4'
-    container_name: 'terraria'
+    image: 'jacobsmile/terraria1.4:1449'
+    container_name: terraria-server
+    tty: true
+    stdin_open: true
+    restart: always
     ports:
-      - "7777:7777"
-    expose:
-      - "7777"
-    environment:
-      # Shutdown Message and Autosave Interval (In Minutes)
-      - "TERRARIA_SHUTDOWN_MESSAGE=Goodbye!"
-      - "TERRARIA_AUTOSAVE_INTERVAL=15"
-      # Server Settings
-      - "TERRARIA_MOTD=Welcome to my Terraria Server!"
-      - "TERRARIA_PASS=secret"
-      - "TERRARIA_MAXPLAYERS=16"
-      - "TERRARIA_WORLDNAME=Earth"
-      - "TERRARIA_WORLDSIZE=2"
-      - "TERRARIA_WORLDSEED=not the bees!"
-      # If set to "Yes", it is expected to have a config.txt mapped. The Server Settings above will be ignored.
-      - "TERRARIA_USECONFIGFILE=No"
-
+      - '7777:7777'
     volumes:
-      - "/path/to/worlds/file:/root/.local/share/Terraria/Worlds"
-      - "/path/to/config/config.txt:/root/terraria-server/serverconfig.txt"
+      - 'terraria_data:/root/.local/share/Terraria/Worlds'
+      - './config.txt:/root/terraria-server/serverconfig.txt'
+    environment:
+      - TERRARIA_USECONFIGFILE=Yes
+      - TERRARIA_PASS=${TERRARIA_PASS:-sigma67}
+      - TERRARIA_SHUTDOWN_MESSAGE=Server shutting down!
+      - TERRARIA_AUTOSAVE_INTERVAL=15
+
+volumes:
+  terraria_data:
